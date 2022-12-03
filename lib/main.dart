@@ -1,98 +1,77 @@
 import 'package:flutter/material.dart';
+import 'package:scroll_to_index/scroll_to_index.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+void main() => runApp( MyApp());
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
+      title: 'Scroll To Index Demo',
       theme: ThemeData(
-          backgroundColor: Colors.teal,
-          primaryColor: Colors.red),
-      home: HomePage(),
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(),
     );
   }
 }
 
-class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+class MyHomePage extends StatefulWidget {
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  final scrollDirection = Axis.vertical;
+
+  late AutoScrollController controller;
+  late List<List<int>> randomList;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = AutoScrollController(viewportBoundaryGetter: () =>
+            Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
+        axis: scrollDirection);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('New'), backgroundColor: Colors.red),
-      body: Container(
-        height: 600,
-       width: 400,
-       // color: Colors.blue,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(30),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black, width: 3),
-                    // color: Colors.white,
-                  ),
-
-                  child: Text('1'),
-                ),
-                // const SizedBox(width: 50),
-                Container(
-                  padding: const EdgeInsets.all(30),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black, width: 3),
-                    // color: Colors.white,
-                  ),
-
-                  child: Text('2'),
-                ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(30),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black, width: 3),
-                    // color: Colors.white,
-                  ),
-
-                  child: Text('3'),
-                ),
-                // const SizedBox(width: 50),
-                Container(
-                  padding: const EdgeInsets.all(30),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black, width: 3),
-                    // color: Colors.white,
-                  ),
-
-                  child: Text('4'),
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: Colors.black, width: 3),
-                  minimumSize: Size.fromHeight(55),
-                ),
-                  onPressed: (){}, child: const Text('Submit', style: TextStyle(color: Colors.black),)),
-            ),
-          ],
-        ),
+      appBar: AppBar(
+        title: const Text('Scroll to Specific Point'),
+      ),
+      body: ListView(
+        scrollDirection: scrollDirection,
+        controller: controller,
+        children: <Widget>[
+          ...List.generate(20, (index) {
+            return AutoScrollTag(
+              key: ValueKey(index),
+              controller: controller,
+              index: index,
+              child: Container(
+                height: 100,
+                color: Colors.red,
+                margin: EdgeInsets.all(10),
+                child: Center(child: Text('index: $index')),
+              ),
+              highlightColor: Colors.black.withOpacity(0.1),
+            );
+          }),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _scrollToIndex,
+        tooltip: 'Increment',
+        child: Icon(Icons.add),
       ),
     );
+  }
+
+  Future _scrollToIndex() async {
+    await controller.scrollToIndex(6, preferPosition: AutoScrollPosition.begin);
   }
 }
